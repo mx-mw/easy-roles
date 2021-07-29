@@ -11,6 +11,7 @@ router.post("/api/interactions", async ctx => {
     if (!valid) {
         ctx.response.status = Status.Unauthorized
         ctx.response.body = {error: "This is not a valid Discord interaction request."}
+        return
     }
 
     const {type = 0, data = {options: []}} = await ctx.request.body({type: "json"}).value
