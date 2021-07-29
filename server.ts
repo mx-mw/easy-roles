@@ -17,7 +17,7 @@ router.post("/api/interactions", async ctx => {
         return
     }
 
-    const interaction = discordeno.camelize<discordeno.Interaction>(await ctx.request.body({type: "json"}).value)
+    const interaction: discordeno.Interaction = await ctx.request.body({type: "json"}).value
 
     // @ts-expect-error Discordeno has terrible types apparently.
     if (interaction.type === discordeno.InteractionTypes.Ping) {
