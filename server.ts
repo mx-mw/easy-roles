@@ -37,6 +37,8 @@ router.post("/api/interactions", async ctx => {
             return
         }
 
+        console.log(interaction)
+
         const handler = handlers[interaction.data.name]
 
         if (handler) {
