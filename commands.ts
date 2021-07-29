@@ -22,13 +22,13 @@ const hello: CommandHandler = (interaction: discordeno.SlashCommandInteraction) 
 // /create new "Role Name"
 // /create from-role @existing-role
 const create: CommandHandler = (interaction: discordeno.SlashCommandInteraction) => {
-    const fromRole = interaction.data?.options?.some(option => option.name === "from-role") || false
-    const newRole = interaction.data?.options?.some(option => option.name === "new-role") || false
+    const fromRole = interaction.data?.options?.find(option => option.name === "from-role") || null
+    const newRole = interaction.data?.options?.find(option => option.name === "new-role") || null
 
-    if (fromRole === newRole) {
+    if (fromRole === null && newRole === null) {
         throw {message: "Missing subcommand. Should be: `new-role` or `from-role`."}
-    } else if (newRole) {
-        const roleNameArg = interaction.data?.options?.find(option => option.name === "role-name")
+    } else if (newRole && newRole.type === discordeno.ApplicationCommandOptionTypes.SubCommand) {
+        const roleNameArg = newRole.options?.find(option => option.name === "role-name") || null
 
         if (!roleNameArg || roleNameArg.type !== discordeno.ApplicationCommandOptionTypes.String) {
             throw {message: "Missing or invalid argument. Should be a string."}
@@ -45,8 +45,8 @@ const create: CommandHandler = (interaction: discordeno.SlashCommandInteraction)
                 content: "Created role!"
             }
         }
-    } else if (fromRole) {
-        const roleArg = interaction.data?.options?.find(option => option.name === "role")
+    } else if (fromRole && fromRole.type === discordeno.ApplicationCommandOptionTypes.SubCommand) {
+        const roleArg = fromRole.options?.find(option => option.name === "role") || null
 
         if (!roleArg || roleArg.type !== discordeno.ApplicationCommandOptionTypes.Role) {
             throw {message: "Missing or invalid argument. Should be a role."}
@@ -65,7 +65,7 @@ const create: CommandHandler = (interaction: discordeno.SlashCommandInteraction)
             }
         }
     } else {
-        throw {message: "Logic has broken."}
+        throw {message: "Missing subcommand. Should be: `new-role` or `from-role`."}
     }
 }
 
