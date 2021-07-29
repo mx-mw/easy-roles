@@ -1,10 +1,9 @@
-import {Request} from "https://deno.land/x/oak@v8.0.0/mod.ts";
-import nacl from "https://cdn.skypack.dev/tweetnacl@v1.0.3?dts";
+import {oak, nacl} from "./deps.ts"
 
 // Your public key can be found on your application in the Developer Portal
 const DISCORD_PUBLIC_KEY = Deno.env.get("DISCORD_PUBLIC_KEY")!;
 
-export const validateDiscordInteraction = async (req: Request): Promise<boolean> => {
+export const validateDiscordInteraction = async (req: oak.Request): Promise<boolean> => {
     const signature = req.headers.get('X-Signature-Ed25519');
     const timestamp = req.headers.get('X-Signature-Timestamp');
 

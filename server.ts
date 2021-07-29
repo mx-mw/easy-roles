@@ -1,43 +1,42 @@
-import {Application, Router, Status} from "https://deno.land/x/oak@v8.0.0/mod.ts";
 import {validateDiscordInteraction} from "./validateDiscordInteraction.ts"
+import {discordeno, oak} from "./deps.ts";
 
-const app = new Application();
+const app = new oak.Application();
 
-const router = new Router();
+const router = new oak.Router();
 
 router.post("/api/interactions", async ctx => {
     const valid = await validateDiscordInteraction(ctx.request)
 
     if (!valid) {
-        ctx.response.status = Status.Unauthorized
+        ctx.response.status = oak.Status.Unauthorized
         ctx.response.body = {error: "This is not a valid Discord interaction request."}
         return
     }
 
-    const {type = 0, data = {options: []}} = await ctx.request.body({type: "json"}).value
+    const interaction: discordeno.Interaction = await ctx.request.body({type: "json"}).value
 
-    // Discord performs Ping interactions to test our application.
-    // Type 1 in a request implies a Ping interaction.
-    if (type === 1) {
-        ctx.response.body = {type: 1}
+    // @ts-expect-error Discordeno has terrible types apparently.
+    if (interaction.type === discordeno.InteractionTypes.Ping) {
+        ctx.response.body = {type: discordeno.InteractionResponseTypes.Pong}
+        return
     }
 
-    // Type 2 in a request is an ApplicationCommand interaction.
-    // It implies that a user has issued a command.
-    if (type === 2) {
-        const {value} = data.options.find((option: any) => option.name === "name");
+    if (interaction.type === discordeno.InteractionTypes.ApplicationCommand) {
+        console.log(interaction)
+        const argument = interaction.data?.options?.find(option => option.name === "name");
         ctx.response.body = {
             // Type 4 responds with the below message retaining the user's
             // input at the top.
-            type: 4,
+            type: discordeno.InteractionResponseTypes.ChannelMessageWithSource,
             data: {
-                content: `Hello, ${value}!`,
+                content: `Hello, ${argument?.type}!`,
             },
         }
         return
     }
 
-    ctx.response.status = Status.BadRequest
+    ctx.response.status = oak.Status.BadRequest
     ctx.response.body = {error: "Invalid Interaction"}
 })
 
