@@ -3,11 +3,6 @@ import {validateDiscordInteraction} from "./validateDiscordInteraction.ts"
 
 const app = new Application();
 
-app.use((ctx) => {
-    ctx.response.body = "Hello world!";
-});
-
-
 const router = new Router();
 
 router.post("/api/interactions", async ctx => {
